@@ -49,21 +49,49 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       sizes: Array.isArray(sizes) ? sizes : JSON.parse(sizes),
-      bestseller: bestseller === "true" ? true : false, 
+      bestseller: bestseller === "true" ? true : false,
     };
 
     const product = new productModel(productData);
     await product.save();
 
-    res.status(201).json({ success: true, message: "Product added successfully" });
+    res
+      .status(201)
+      .json({ success: true, message: "Product added successfully" });
   } catch (error) {
     console.error("Error in addProduct:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-const listProducts = async (req, res) => {};
-const removeProduct = async (req, res) => {};
-const singleProduct = async (req, res) => {};
+const listProducts = async (req, res) => {
+
+  try {
+    const products = await productModel.find({});
+    res.json({success:true , products})
+  } catch (error) {
+    console.error("Error to list all products:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+const removeProduct = async (req, res) => {
+  try {
+    await productModel.findByIdAndDelete(req.body.id);
+    res.json({success : true , message : "product removed successfully"});
+  } catch (error) {
+    console.error("Error while removing product:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+const singleProduct = async (req, res) => {
+  try {
+    const {productId} = req.body;
+    const product = await productModel.findById(productId);
+    res.json({success : true , product});
+  } catch (error) {
+    console.error("Error while getting single product information:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 export { addProduct, listProducts, removeProduct, singleProduct };
